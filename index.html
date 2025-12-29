@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unseal - iOS 26 Jailbreak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Liquid Glass Effects */
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .version {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Main Container */
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Jailbreak Button */
+        .jailbreak-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 10px 40px rgba(102, 126, 234, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin: 40px 0;
+        }
+
+        .jailbreak-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 50px rgba(102, 126, 234, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .jailbreak-btn:active {
+            transform: translateY(0);
+        }
+
+        .jailbreak-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.5s;
+        }
+
+        .jailbreak-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Terminal/Code Display */
+        .terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            text-align: left;
+            color: #00ff00;
+            height: 300px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            box-shadow: 
+                inset 0 1px 0 rgba(0, 255, 0, 0.1),
+                0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .success-message {
+            color: #00ff00;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 30px 0;
+            opacity: 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* App Selection */
+        .app-selection {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .app-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .app-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .app-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Particles Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3rem;
+            }
+            
+            .container {
+                padding: 40px 20px;
+            }
+            
+            .app-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="header">
+        <h1 class="title">Unseal</h1>
+        <p class="version">iOS 18.0-26.1</p>
+    </div>
+
+    <div class="container liquid-glass">
+        <button class="jailbreak-btn" id="jailbreakBtn">Jailbreak</button>
+        
+        <div class="terminal" id="terminal"></div>
+        
+        <div class="success-message" id="successMessage">Device Successfully Jailbroken</div>
+        
+        <div class="app-selection" id="appSelection">
+            <p class="question">Which App Would You Prefer?</p>
+            <div class="app-buttons">
+                <button class="app-btn" id="cydiaBtn">Cydia</button>
+                <button class="app-btn" id="sileoBtn">Sileo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Jailbreak process
+        const jailbreakBtn = document.getElementById('jailbreakBtn');
+        const terminal = document.getElementById('terminal');
+        const successMessage = document.getElementById('successMessage');
+        const appSelection = document.getElementById('appSelection');
+
+        const fakeCode = [
+            'Checking device compatibility...',
+            'Found iPhone 15 Pro Max',
+            'iOS Version: 26.1',
+            'Device Model: D84AP',
+            'Exploiting kernel...',
+            'Patching sandbox...',
+            'Installing untether...',
+            'Respringing device...',
+            'Mounting root filesystem...',
+            'Installing Cydia substrate...',
+            'Configuring dpkg...',
+            'Setting up bootstrap...',
+            'Installing essential packages...',
+            'Cleaning up...',
+            'Finalizing installation...'
+        ];
+
+        function addTerminalLine(text, delay) {
+            setTimeout(() => {
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                line.textContent = text;
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+            }, delay);
+        }
+
+        jailbreakBtn.addEventListener('click', function() {
+            this.style.display = 'none';
+            terminal.style.display = 'block';
+            
+            let delay = 0;
+            
+            // Add fake code lines
+            fakeCode.forEach((line, index) => {
+                addTerminalLine(line, delay);
+                delay += 300;
+            });
+            
+            // Show compatibility message
+            setTimeout(() => {
+                addTerminalLine('═══════════════════════════════════════════', delay);
+                addTerminalLine('✓ Device Compatible!', delay + 200);
+                addTerminalLine('═══════════════════════════════════════════', delay + 400);
+            }, delay);
+            
+            // Continue with more fake code
+            setTimeout(() => {
+                fakeCode.slice(0, 8).forEach((line, index) => {
+                    addTerminalLine(line, delay + (index * 300));
+                });
+            }, delay + 1000);
+            
+            // Show success message
+            setTimeout(() => {
+                terminal.style.display = 'none';
+                successMessage.style.display = 'block';
+                successMessage.style.animation = 'fadeIn 1s forwards';
+            }, delay + 3000);
+            
+            // Show app selection
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+                appSelection.style.display = 'block';
+                appSelection.style.animation = 'fadeIn 1s forwards';
+            }, delay + 5000);
+        });
+
+        // App selection handlers
+        document.getElementById('cydiaBtn').addEventListener('click', function() {
+            this.innerHTML = '✓ Installing Cydia...';
+            setTimeout(() => {
+                alert('Cydia has been successfully installed!');
+                location.reload();
+            }, 2000);
+        });
+
+        document.getElementById('sileoBtn').addEventListener('click', function() {
+            this.innerHTML = '✓ Installing Sileo...';
+            setTimeout(() => {
+                alert('Sileo has been successfully installed!');
+                location.reload();
+            }, 2000);
+        });
+
+        // Initialize
+        createParticles();
+    </script>
+</body>
+</html>
