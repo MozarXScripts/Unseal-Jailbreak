@@ -157,7 +157,7 @@
             line-height: 1.6;
             text-align: left;
             color: #00ff00;
-            height: 300px;
+            height: 350px;
             overflow-y: auto;
             display: none;
             border: 1px solid rgba(0, 255, 0, 0.2);
@@ -197,6 +197,7 @@
             margin: 30px 0;
             opacity: 0;
             animation: pulse 2s infinite;
+            display: none;
         }
 
         @keyframes pulse {
@@ -340,22 +341,46 @@
         const successMessage = document.getElementById('successMessage');
         const appSelection = document.getElementById('appSelection');
 
-        const fakeCode = [
+        const realisticJailbreakSteps = [
+            // Initial checks
+            'unseal v26.1-0 by UnsealTeam',
             'Checking device compatibility...',
-            'Found iPhone 15 Pro Max',
-            'iOS Version: 26.1',
-            'Device Model: D84AP',
-            'Exploiting kernel...',
-            'Patching sandbox...',
-            'Installing untether...',
-            'Respringing device...',
-            'Mounting root filesystem...',
-            'Installing Cydia substrate...',
-            'Configuring dpkg...',
-            'Setting up bootstrap...',
-            'Installing essential packages...',
-            'Cleaning up...',
-            'Finalizing installation...'
+            'Found iPhone 15 Pro Max (D84AP)',
+            'iOS Version: 26.1 (Build 22A400)',
+            'Device UDID: 8e4b7c9a-1234-5678-9abc-def123456789',
+            'Chip: A18 Bionic',
+            'Memory: 8GB LPDDR5',
+            '',
+            // Exploitation phase
+            '[*] Exploiting kernel vulnerability...',
+            '[*] Found kernel base at 0xfffffff007a00000',
+            '[*] Bypassing KASLR...',
+            '[*] Found kernel slide: 0x1a8000',
+            '[*] Patching kernel memory...',
+            '[*] Disabling AMFI...',
+            '[*] Bypassing Sandbox...',
+            '',
+            // File system
+            '[*] Mounting root filesystem as read/write...',
+            '[*] Creating jailbreak directory structure...',
+            '[*] Installing bootstrap...',
+            '[*] Extracting binaries...',
+            '',
+            // Package manager setup
+            '[*] Configuring dpkg...',
+            '[*] Installing essential packages...',
+            '[*] Setting up untether...',
+            '[*] Installing Cydia substrate...',
+            '[*] Configuring Sileo compatibility...',
+            '',
+            // Final steps
+            '[*] Cleaning up temporary files...',
+            '[*] Respringing device...',
+            '[*] Finalizing installation...',
+            '',
+            '═══════════════════════════════════════════',
+            '✓ Jailbreak completed successfully!',
+            '═══════════════════════════════════════════'
         ];
 
         function addTerminalLine(text, delay) {
@@ -373,40 +398,39 @@
             terminal.style.display = 'block';
             
             let delay = 0;
+            const lineDelay = 400; // Slower, more realistic timing
             
-            // Add fake code lines
-            fakeCode.forEach((line, index) => {
-                addTerminalLine(line, delay);
-                delay += 300;
+            // Add all jailbreak steps
+            realisticJailbreakSteps.forEach((line, index) => {
+                if (line.startsWith('[*]')) {
+                    addTerminalLine(line, delay);
+                    delay += lineDelay;
+                } else if (line === '') {
+                    addTerminalLine('', delay);
+                    delay += 200;
+                } else if (line.includes('════════════════')) {
+                    addTerminalLine(line, delay);
+                    delay += 600;
+                } else {
+                    addTerminalLine(line, delay);
+                    delay += lineDelay * 1.5;
+                }
             });
             
-            // Show compatibility message
-            setTimeout(() => {
-                addTerminalLine('═══════════════════════════════════════════', delay);
-                addTerminalLine('✓ Device Compatible!', delay + 200);
-                addTerminalLine('═══════════════════════════════════════════', delay + 400);
-            }, delay);
-            
-            // Continue with more fake code
-            setTimeout(() => {
-                fakeCode.slice(0, 8).forEach((line, index) => {
-                    addTerminalLine(line, delay + (index * 300));
-                });
-            }, delay + 1000);
-            
-            // Show success message
+            // Hide terminal and show success message only after ALL steps
             setTimeout(() => {
                 terminal.style.display = 'none';
                 successMessage.style.display = 'block';
                 successMessage.style.animation = 'fadeIn 1s forwards';
-            }, delay + 3000);
-            
-            // Show app selection
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-                appSelection.style.display = 'block';
-                appSelection.style.animation = 'fadeIn 1s forwards';
-            }, delay + 5000);
+                
+                // Show app selection after success message
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                    appSelection.style.display = 'block';
+                    appSelection.style.animation = 'fadeIn 1s forwards';
+                }, 3000);
+                
+            }, delay + 1000);
         });
 
         // App selection handlers
